@@ -68,11 +68,11 @@ namespace LibMtpSharp.NativeAPI
         }
         
         [DllImport(LibMtpName)]
-        private static extern void LIBMTP_Free(IntPtr ptrToFree);
+        private static extern void LIBMTP_FreeMemory(IntPtr ptrToFree);
         
         public static void Free(IntPtr ptrToFree)
         {
-            LIBMTP_Free(ptrToFree);
+            LIBMTP_FreeMemory(ptrToFree);
         }
         
         [DllImport(LibMtpName)]

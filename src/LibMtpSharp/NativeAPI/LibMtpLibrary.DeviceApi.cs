@@ -15,7 +15,7 @@ namespace LibMtpSharp.NativeAPI
         /// </summary>
         /// <param name="listOfDevices">a pointer to a the list of raw devices found.
         /// This may be NULL on return if the number of detected devices is zero.
-        /// The user shall call <see cref="LIBMTP_Free"/> this variable when finished with the raw devices,
+        /// The user shall call <see cref="LIBMTP_FreeMemory"/> this variable when finished with the raw devices,
         /// in order to release memory.</param>
         /// <param name="numberOfDevices">the number of devices in the list. This may be 0.</param>
         /// <returns></returns>
@@ -76,7 +76,7 @@ namespace LibMtpSharp.NativeAPI
             var pointerToStr = LIBMTP_Get_Manufacturername(openedMtpDevice);
             var manufacturerName = Marshal.PtrToStringUTF8(pointerToStr);
             if (manufacturerName != null)
-                LIBMTP_Free(pointerToStr);
+                LIBMTP_FreeMemory(pointerToStr);
             return manufacturerName;
         }
         
@@ -95,7 +95,7 @@ namespace LibMtpSharp.NativeAPI
             var pointerToStr = LIBMTP_Get_Modelname(mtpDeviceStructPointer);
             var modelName = Marshal.PtrToStringUTF8(pointerToStr);
             if (modelName != null)
-                LIBMTP_Free(pointerToStr);
+                LIBMTP_FreeMemory(pointerToStr);
             return modelName;
         }
         
@@ -114,7 +114,7 @@ namespace LibMtpSharp.NativeAPI
             var pointerToStr = LIBMTP_Get_Serialnumber(mtpDeviceStructPointer);
             var serialNumber = Marshal.PtrToStringUTF8(pointerToStr);
             if (serialNumber != null)
-                LIBMTP_Free(pointerToStr);
+                LIBMTP_FreeMemory(pointerToStr);
             return serialNumber;
         }
         
@@ -133,7 +133,7 @@ namespace LibMtpSharp.NativeAPI
             var pointerToStr = LIBMTP_Get_Deviceversion(mtpDeviceStructPointer);
             var deviceVersion = Marshal.PtrToStringUTF8(pointerToStr);
             if (deviceVersion != null)
-                LIBMTP_Free(pointerToStr);
+                LIBMTP_FreeMemory(pointerToStr);
             return deviceVersion;
         }
         
@@ -152,7 +152,7 @@ namespace LibMtpSharp.NativeAPI
             var pointerToStr = LIBMTP_Get_Friendlyname(mtpDeviceStructPointer);
             var friendlyName = Marshal.PtrToStringUTF8(pointerToStr);
             if (friendlyName != null)
-                LIBMTP_Free(pointerToStr);
+                LIBMTP_FreeMemory(pointerToStr);
             return friendlyName;
         }
 
