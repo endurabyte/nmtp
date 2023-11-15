@@ -1,13 +1,7 @@
-#VS & Rider
 .vs
 .idea
-#bins and obj
+*.user
 [Bb]in
 [Oo]bj
-#userFiles
-*.user
-
-#mtpzBuild
 lib/**/input
 lib/**/output
-lib/packages
