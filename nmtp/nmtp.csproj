@@ -57,7 +57,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="../lib/osx-x64/output/lib/libgcrypt.dylib">
+    <Content Include="../lib/osx-x64/output/lib/libgcrypt.20.dylib">
       <PackagePath>runtimes/osx-x64/native/</PackagePath>
       <Pack>true</Pack>
     </Content>
@@ -80,7 +80,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <Content Include="../lib/osx-arm64/output/lib/libgcrypt.dylib">
+    <Content Include="../lib/osx-arm64/output/lib/libgcrypt.20.dylib">
       <PackagePath>runtimes/osx-arm64/native/</PackagePath>
       <Pack>true</Pack>
     </Content>
