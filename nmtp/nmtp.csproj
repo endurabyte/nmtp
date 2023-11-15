@@ -1,11 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
-    <RootNamespace>nmtp</RootNamespace>
-    <LangVersion>default</LangVersion>
-    <RuntimeIdentifiers>win-x64;win-arm64;osx-x64;osx-arm64;linux-x64;linux-arm64</RuntimeIdentifiers>
-    <PackageVersion>0.2.3</PackageVersion>
     <Authors>Alexandr Shevchenko; Doug Slater</Authors>
     <Description>libmtp for dotnet</Description>
     <Copyright>Copyright ©2023 nmtp contributors</Copyright>
@@ -16,7 +11,6 @@
       Support all platforms from single nupkg
     </PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Nullable>enable</Nullable>
     <Title>nmtp</Title>
   </PropertyGroup>
 
@@ -62,6 +56,29 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="../lib/osx-x64/output/lib/libgcrypt.dylib">
+      <PackagePath>runtimes/osx-x64/native/</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+    <Content Include="../lib/osx-x64/output/lib/libgpg-error.dylib">
+      <PackagePath>runtimes/osx-x64/native/</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+    <Content Include="../lib/osx-x64/output/lib/libiconv.dylib">
+      <PackagePath>runtimes/osx-x64/native/</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+    <Content Include="../lib/osx-x64/output/lib/libusb-1.0.dylib">
+      <PackagePath>runtimes/osx-x64/native/</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+    <Content Include="../lib/osx-x64/output/lib/libmtp.dylib">
+      <PackagePath>runtimes/osx-x64/native/</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+  </ItemGroup>
+  
   <ItemGroup>
     <Content Include="../lib/osx-arm64/output/lib/libgcrypt.dylib">
       <PackagePath>runtimes/osx-arm64/native/</PackagePath>

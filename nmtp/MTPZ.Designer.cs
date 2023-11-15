@@ -39,7 +39,7 @@ namespace Nmtp {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("nmtp.MTPZ", typeof(MTPZ).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Nmtp.MTPZ", typeof(MTPZ).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

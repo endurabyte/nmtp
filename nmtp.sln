@@ -19,6 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 		build.sh = build.sh
 		.github\workflows\build_packages.yml = .github\workflows\build_packages.yml
+		Directory.Build.props = Directory.Build.props
 		.github\FUNDING.yml = .github\FUNDING.yml
 		LICENSE = LICENSE
 		NuGet.Config = NuGet.Config
