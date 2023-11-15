@@ -2,9 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using Nmtp.Enums;
-using Nmtp.Exceptions;
-using Nmtp.Structs;
 
 namespace Nmtp
 {
@@ -15,10 +12,10 @@ namespace Nmtp
         
         public RawDeviceList()
         {
-            var error = NativeAPI.LibMtpLibrary.DetectRawDevices(ref _deviceListPointer, ref _numberOfDevices);
-            if (error == ErrorEnum.NoDeviceAttached)
+            var error = Native.LibMtp.DetectRawDevices(ref _deviceListPointer, ref _numberOfDevices);
+            if (error == Error.NoDeviceAttached)
                 return;
-            if (error != ErrorEnum.None)
+            if (error != Error.None)
                 throw new DetectDeviceException(error);
         }
 
@@ -40,7 +37,7 @@ namespace Nmtp
         private void ReleaseUnmanagedResources()
         {
             if (_deviceListPointer != IntPtr.Zero)
-                NativeAPI.LibMtpLibrary.Free(_deviceListPointer);
+                Native.LibMtp.Free(_deviceListPointer);
         }
 
         public void Dispose()
