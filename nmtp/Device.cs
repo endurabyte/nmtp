@@ -28,11 +28,7 @@ public class Device : IDisposable
     public string? GetDeviceVersion() => LibMtp.GetDeviceVersion(_mptDeviceStructPointer);
     public string? GetFriendlyName() => LibMtp.GetFriendlyName(_mptDeviceStructPointer);
 
-    public void SetFriendlyName(string name)
-    {
-        if (0 != LibMtp.SetFriendlyName(_mptDeviceStructPointer, name))
-            throw new ApplicationException($"Failed to set '{name}' device name");
-    }
+    public bool SetFriendlyName(string name) => 0 == LibMtp.SetFriendlyName(_mptDeviceStructPointer, name);
 
     public IEnumerable<FileType> GetSupportedTypes()
     {
@@ -50,10 +46,9 @@ public class Device : IDisposable
         return 100.0f * currentBattery / maxBattery;
     }
 
-    public void PopulateStorages()
+    public bool PopulateStorages()
     {
-        if (LibMtp.PopulateStorages(_mptDeviceStructPointer) != 0)
-            throw new PopulateStoragesException(this);
+        return LibMtp.PopulateStorages(_mptDeviceStructPointer) == 0;
     }
 
     public IEnumerable<DeviceStorage> GetStorages()
@@ -182,10 +177,7 @@ public class Device : IDisposable
 
     public uint CreateFolder(string name, uint parentFolderId, uint parentStorageId)
     {
-        var newFolderId = LibMtp.CreateFolder(_mptDeviceStructPointer, name, parentFolderId, parentStorageId);
-        if (newFolderId == 0)
-            throw new FolderCreationException(name, parentFolderId, parentStorageId);
-        return newFolderId;
+        return LibMtp.CreateFolder(_mptDeviceStructPointer, name, parentFolderId, parentStorageId);
     }
 
     public IEnumerable<Folder> GetFolderList(uint? storageId = null)
