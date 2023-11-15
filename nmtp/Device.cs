@@ -185,7 +185,12 @@ namespace Nmtp
         /// <exception cref="ApplicationException">throws exception if getting the file failed</exception>
         public void GetFile(uint fileId, string filePath, Func<double, bool>? progressCallback)
         {
-            var file = System.IO.File.Create(filePath);
+            Stream file = System.IO.File.Create(filePath);
+            GetFile(fileId, filePath, progressCallback, file);
+        }
+
+        public void GetFile(uint fileId, string filePath, Func<double, bool>? progressCallback, Stream file)
+        {
             var result = LibMtp.GetFileToHandler(_mptDeviceStructPointer, fileId, PutDataFunction(
                 d =>
                 {
