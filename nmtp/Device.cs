@@ -7,32 +7,34 @@ namespace Nmtp;
 
 public class Device : IDisposable
 {
-    private MtpDevice CurrentMtpDeviceStruct_ =>
-        Marshal.PtrToStructure<MtpDevice>(_mptDeviceStructPointer);
+    private MtpDevice _Device => Marshal.PtrToStructure<MtpDevice>(_device);
 
-    private readonly IntPtr _mptDeviceStructPointer;
-    private readonly bool _cached;
+    private IntPtr _device;
+    private bool _cached;
 
-    public Device(ref RawDevice rawDevice, bool cached)
+    public bool TryOpen(ref RawDevice rawDevice, bool cached)
     {
         _cached = cached;
-        _mptDeviceStructPointer = _cached ? LibMtp.OpenRawDevice(ref rawDevice)
+
+        IntPtr ptr = cached
+            ? LibMtp.OpenRawDevice(ref rawDevice)
             : LibMtp.OpenRawDeviceUncached(ref rawDevice);
-        if (_mptDeviceStructPointer == IntPtr.Zero)
-            throw new OpenDeviceException(rawDevice);
+
+        _device = ptr;
+        return ptr != IntPtr.Zero;
     }
 
-    public string? GetManufacturerName() => LibMtp.GetManufacturerName(_mptDeviceStructPointer);
-    public string? GetModelName() => LibMtp.GetModelName(_mptDeviceStructPointer);
-    public string? GetSerialNumber() => LibMtp.GetSerialNumber(_mptDeviceStructPointer);
-    public string? GetDeviceVersion() => LibMtp.GetDeviceVersion(_mptDeviceStructPointer);
-    public string? GetFriendlyName() => LibMtp.GetFriendlyName(_mptDeviceStructPointer);
+    public string? GetManufacturerName() => LibMtp.GetManufacturerName(_device);
+    public string? GetModelName() => LibMtp.GetModelName(_device);
+    public string? GetSerialNumber() => LibMtp.GetSerialNumber(_device);
+    public string? GetDeviceVersion() => LibMtp.GetDeviceVersion(_device);
+    public string? GetFriendlyName() => LibMtp.GetFriendlyName(_device);
 
-    public bool SetFriendlyName(string name) => 0 == LibMtp.SetFriendlyName(_mptDeviceStructPointer, name);
+    public bool SetFriendlyName(string name) => 0 == LibMtp.SetFriendlyName(_device, name);
 
     public IEnumerable<FileType> GetSupportedTypes()
     {
-        using var fileTypeList = new SupportedTypesList(_mptDeviceStructPointer);
+        using var fileTypeList = new SupportedTypesList(_device);
         foreach (var fileType in fileTypeList)
             yield return fileType;
     }
@@ -40,20 +42,17 @@ public class Device : IDisposable
     public float GetBatteryLevel(bool throwException)
     {
         byte maxBattery = 255, currentBattery = 0;
-        var batterLevel = LibMtp.GetBatteryLevel(_mptDeviceStructPointer, ref maxBattery, ref currentBattery);
+        var batterLevel = LibMtp.GetBatteryLevel(_device, ref maxBattery, ref currentBattery);
         if (batterLevel != 0)
             return throwException ? throw new ApplicationException() : 0.0f;
         return 100.0f * currentBattery / maxBattery;
     }
 
-    public bool PopulateStorages()
-    {
-        return LibMtp.PopulateStorages(_mptDeviceStructPointer) == 0;
-    }
+    public bool PopulateStorages() => LibMtp.PopulateStorages(_device) == 0;
 
     public IEnumerable<DeviceStorage> GetStorages()
     {
-        var deviceStorage = Marshal.PtrToStructure<DeviceStorage>(CurrentMtpDeviceStruct_.storage);
+        var deviceStorage = Marshal.PtrToStructure<DeviceStorage>(_Device.storage);
         yield return deviceStorage;
         while (deviceStorage.next != IntPtr.Zero)
         {
@@ -67,7 +66,7 @@ public class Device : IDisposable
         if (_cached)
             throw new ApplicationException(
                 "GetFolderContent cannot be called on cached device. Open device with cached: false");
-        using var fileList = new FileAndFolderList(_mptDeviceStructPointer, storageId,
+        using var fileList = new FileAndFolderList(_device, storageId,
                    folderId ?? LibMtp.LibmtpFilesAndFoldersRoot);
         foreach (var file in fileList)
             yield return file;
@@ -75,7 +74,7 @@ public class Device : IDisposable
 
     public IEnumerable<File> GetFiles(Func<double, bool>? progressCallback)
     {
-        using var fileList = new FileList(_mptDeviceStructPointer, GetProgressFunction(progressCallback));
+        using var fileList = new FileList(_device, DeviceFunction.GetProgress(progressCallback));
         foreach (var file in fileList)
         {
             yield return file;
@@ -84,32 +83,32 @@ public class Device : IDisposable
 
     public IEnumerable<Album> GetAlbumList()
     {
-        using var albumList = new AlbumList(_mptDeviceStructPointer);
+        using var albumList = new AlbumList(_device);
         foreach (var album in albumList)
             yield return new Album(album);
     }
 
     public IEnumerable<Track> GetTrackList(Func<double, bool>? progressCallback)
     {
-        using var trackList = new TrackList(_mptDeviceStructPointer, GetProgressFunction(progressCallback));
+        using var trackList = new TrackList(_device, DeviceFunction.GetProgress(progressCallback));
         foreach (var track in trackList)
             yield return track;
     }
 
     public FileSampleData GetFileSampleDataForObject(uint objectId)
     {
-        return new FileSampleData(_mptDeviceStructPointer, objectId);
+        return new FileSampleData(_device, objectId);
     }
 
     public void SendRepresentativeDataForObject(uint objectId, ref FileSampleData dataStructStruct)
     {
-        dataStructStruct.SendDataToDevice(_mptDeviceStructPointer, objectId);
+        dataStructStruct.SendDataToDevice(_device, objectId);
     }
 
     private void ReleaseUnmanagedResources()
     {
-        if (_mptDeviceStructPointer != IntPtr.Zero)
-            LibMtp.ReleaseDevice(_mptDeviceStructPointer);
+        if (_device != IntPtr.Zero)
+            LibMtp.ReleaseDevice(_device);
     }
 
     public void Dispose()
@@ -133,8 +132,8 @@ public class Device : IDisposable
     public void SendTrack(ref Track track, Func<int, IList<byte>> dataProvider,
         Func<double, bool>? progressCallback)
     {
-        var result = LibMtp.SendTrackFromHandler(_mptDeviceStructPointer, GetDataFunction(dataProvider),
-            ref track, GetProgressFunction(progressCallback));
+        var result = LibMtp.SendTrackFromHandler(_device, DeviceFunction.GetData(dataProvider),
+            ref track, DeviceFunction.GetProgress(progressCallback));
         if (result != 0)
             throw new ApplicationException("Sending file failed");
     }
@@ -146,43 +145,40 @@ public class Device : IDisposable
     /// <param name="filePath">file path where to write</param>
     /// <param name="progressCallback">callback for progress reporting</param>
     /// <exception cref="ApplicationException">throws exception if getting the file failed</exception>
-    public void GetFile(uint fileId, string filePath, Func<double, bool>? progressCallback)
+    public bool GetFile(uint fileId, string filePath, Func<double, bool>? progressCallback)
     {
-        Stream file = System.IO.File.Create(filePath);
-        GetFile(fileId, filePath, progressCallback, file);
+        using Stream file = System.IO.File.Create(filePath);
+        return GetFile(fileId, progressCallback, file);
     }
 
-    public void GetFile(uint fileId, string filePath, Func<double, bool>? progressCallback, Stream file)
+    public bool GetFile(uint fileId, Func<double, bool>? progressCallback, Stream file)
     {
-        var result = LibMtp.GetFileToHandler(_mptDeviceStructPointer, fileId, PutDataFunction(
+        return 0 == LibMtp.GetFileToHandler(_device, fileId, DeviceFunction.PutData(
             d =>
             {
                 file.Write(d);
                 return false;
-            }), GetProgressFunction(progressCallback));
-        file.Close();
-        if (result != 0)
-            throw new ApplicationException($"Getting file Id: {fileId} to {filePath} failed");
+            }), DeviceFunction.GetProgress(progressCallback));
     }
 
     public void CreateAlbum(ref Album albumStruct)
     {
-        albumStruct.SendAlbum(_mptDeviceStructPointer, true);
+        albumStruct.SendAlbum(_device, true);
     }
 
     public void UpdateAlbum(ref Album albumStruct)
     {
-        albumStruct.SendAlbum(_mptDeviceStructPointer, false);
+        albumStruct.SendAlbum(_device, false);
     }
 
     public uint CreateFolder(string name, uint parentFolderId, uint parentStorageId)
     {
-        return LibMtp.CreateFolder(_mptDeviceStructPointer, name, parentFolderId, parentStorageId);
+        return LibMtp.CreateFolder(_device, name, parentFolderId, parentStorageId);
     }
 
     public IEnumerable<Folder> GetFolderList(uint? storageId = null)
     {
-        using var folderList = new FolderList(_mptDeviceStructPointer, storageId);
+        using var folderList = new FolderList(_device, storageId);
         foreach (var folder in folderList)
         {
             yield return folder;
@@ -199,71 +195,14 @@ public class Device : IDisposable
             ParentId = 0,
             StorageId = 0
         };
-        LibMtp.SendFile(_mptDeviceStructPointer, fileInfo.FullName, ref firmwareFile,
-            GetProgressFunction(progressCallback), IntPtr.Zero);
+
+        LibMtp.SendFile(_device, fileInfo.FullName, ref firmwareFile,
+            DeviceFunction.GetProgress(progressCallback), IntPtr.Zero);
     }
 
     public void DeleteObject(uint objectId)
     {
-        if (0 != LibMtp.DeleteObject(_mptDeviceStructPointer, objectId))
+        if (0 != LibMtp.DeleteObject(_device, objectId))
             throw new ApplicationException($"Failed to delete the object with it {objectId}");
-    }
-
-    private MtpDataGetFunction GetDataFunction(Func<int, IList<byte>?> getData)
-    {
-        return (IntPtr _, IntPtr _, uint wantlen, IntPtr data, out uint gotlen) =>
-        {
-            var whereToWrite = data;
-            long leftToRead = wantlen;
-            gotlen = 0;
-            do
-            {
-                var howMuchToRead = leftToRead > int.MaxValue ? int.MaxValue : (int)leftToRead;
-
-                var readBytes = getData(howMuchToRead);
-                if (readBytes == null)
-                    return (ushort)HandlerReturn.Cancel;
-                for (int i = 0; i < readBytes.Count; i++)
-                {
-                    Marshal.WriteByte(whereToWrite, i, readBytes[i]);
-                }
-
-                whereToWrite = IntPtr.Add(whereToWrite, readBytes.Count);
-                leftToRead -= readBytes.Count;
-                gotlen += (uint)readBytes.Count;
-            } while (leftToRead != 0);
-
-            return (ushort)HandlerReturn.Ok;
-        };
-    }
-
-    private MtpDataPutFunction PutDataFunction(Func<byte[], bool> putData)
-    {
-        return (IntPtr _, IntPtr _, uint sendlen, IntPtr data, out uint gotlen) =>
-        {
-            gotlen = sendlen > Array.MaxLength ? (uint)Array.MaxLength : sendlen;
-            var readBytes = new byte[gotlen];
-            for (int i = 0; i < gotlen; i++)
-            {
-                readBytes[i] = Marshal.ReadByte(data, i);
-            }
-
-            if (putData(readBytes))
-                return (ushort)HandlerReturn.Cancel;
-
-            return (ushort)HandlerReturn.Ok;
-        };
-    }
-
-    private ProgressFunction? GetProgressFunction(Func<double, bool>? progressCallback)
-    {
-        if (progressCallback == null)
-            return null;
-        return (sent, total, _) =>
-        {
-            double progress = (double)sent / total;
-            var isCancelled = progressCallback(progress);
-            return isCancelled ? 1 : 0;
-        };
     }
 }
