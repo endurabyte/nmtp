@@ -8,7 +8,7 @@
     <Nullable>enable</Nullable>
     <RootNamespace>Nmtp</RootNamespace>
     <LangVersion>latest</LangVersion>
-    <PackageVersion>0.2.6</PackageVersion>
+    <PackageVersion>0.2.7</PackageVersion>
   </PropertyGroup>
 
 </Project>
