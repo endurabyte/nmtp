@@ -6,7 +6,7 @@ namespace Nmtp.Native
     /// <summary>
     /// The basic device management API.
     /// </summary>
-    internal partial class LibMtp
+    public partial class LibMtp
     {
         /// <summary>
         /// Detect the raw MTP device descriptors and return a list of the devices found.

@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace Nmtp.Native.Structs
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal struct NativeAlbum
+    public struct NativeAlbum
     {
         /// <summary>
         /// Unique playlist ID

@@ -7,7 +7,7 @@ namespace Nmtp.Native
     /// <summary>
     /// Media Items API.
     /// </summary>
-    internal partial class LibMtp
+    public partial class LibMtp
     {
         /// <summary>
         /// This function returns a list of the albums available on the device.

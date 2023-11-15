@@ -6,7 +6,7 @@ namespace Nmtp.Native
     /// <summary>
     /// Storage and files API.
     /// </summary>
-    internal partial class LibMtp
+    public partial class LibMtp
     {
         /// <summary>
         /// This function retrieves a list of supported file types, i.e. the file types that this device claims
@@ -27,7 +27,6 @@ namespace Nmtp.Native
         {
             return LIBMTP_Get_Supported_Filetypes(mtpDeviceStructPointer, ref filetypes, ref length);
         }
-
 
         /// <summary>
         ///This function updates all the storage id's of a device and their properties, then creates a linked list

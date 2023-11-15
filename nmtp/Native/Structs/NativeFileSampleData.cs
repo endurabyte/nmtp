@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace Nmtp.Native.Structs
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal struct NativeFileSampleData
+    public struct NativeFileSampleData
     {
         /// <summary>
         /// Width of sample if it is an image
