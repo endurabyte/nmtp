@@ -1,29 +1,35 @@
 # nmtp
 
-nmtp is a fork of [LibMtpSharp](https://github.com/shaosss/LibMtpSharp). 
-nmtp is a wrapper of [libmtp](https://github.com/libmtp/libmtp) with a few [changes](https://github.com/endurabyte/libmtp)
+nmtp is a fork of [LibMtpSharp](https://github.com/shaosss/LibMtpSharp) and a wrapper of [libmtp](https://github.com/libmtp/libmtp) with a few [changes](https://github.com/endurabyte/libmtp).
 
 ## Use
 
-See the libmtp documentation at the link above.
-
-To list available MTP devices, create a `RawDeviceList`.
-
-To connect to a device, create a `OpenedMtpDevice`. It contains the methods to communicate with device.
+To list available MTP devices, create a `Nmtp.RawDeviceList`.
+For an object-oriented API, create a `Nmtp.Device` and use its instance methods.
+If you need a low-level API, use `Nmtp.Native.LibMtp`. The methods are mostly 1-1 with the C API. See the source or libmtp documentation for details.
 
 **Don't forget to dispose!**
+
+## Platforms
+
+The nuget packages includes native platform support for the following target frameworks:
+
+- `win-x64`
+- `linux-x64`
+- `osx-x64`
+- `osx-arm64`
 
 ## Example
 
 ```c#
-using var list = new RawDeviceList();
-foreach(RawDevice device in list)
+using var list = new Nmtp.RawDeviceList();
+foreach(Nmtp.RawDevice device in list)
 {
   Console.WriteLine(device);
 }
 
 var rawDevice = list.First();
-using var device = new Device()
+using var device = new Nmtp.Device()
 bool isOpen = device.TryOpen(ref rawDevice, cached: true);
 if (!isOpen) { return; }
 
@@ -36,7 +42,7 @@ List<Nmtp.File> files = device
     .GetFiles(progress =>
     {
       Log.Info($"List files progress: {progress * 100:##.#}%");
-      return true; // true: keep loading
+      return true; // false: cancel, true: continue
     })
     .Where(file => file.ParentId == cameraDir.FolderId)
     .Where(file => file.FileName.EndsWith(".png"))
@@ -50,7 +56,7 @@ List<byte[]> data = files
       bool ok = device.GetFile(file.ItemId, progress =>
       {
         Log.Info($"Download progress {file.FileName} {progress * 100:##.#}%");
-        return false; // false => continue, true => cancel
+        return false; // false: continue, true: cancel
       }, ms);
 
       return ms.ToArray();
