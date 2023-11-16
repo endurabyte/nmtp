@@ -6,6 +6,7 @@
     <Copyright>Copyright ©2023 nmtp contributors</Copyright>
     <PackageProjectUrl>https://github.com/endurabyte/nmtp</PackageProjectUrl>
     <PackageTags>MTP MTPZ</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
       Support Apple Silicon
       Support all platforms from single nupkg
@@ -23,6 +24,17 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>MTPZ.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
