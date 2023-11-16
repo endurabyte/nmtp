@@ -2,6 +2,8 @@
 
 ![nmtp logo](./icon.png "nmtp logo")
 
+Get it from [NuGet](https://www.nuget.org/packages/nmtp)
+
 nmtp is a fork of [LibMtpSharp](https://github.com/shaosss/LibMtpSharp) and a wrapper of [libmtp](https://github.com/libmtp/libmtp) with a few [changes](https://github.com/endurabyte/libmtp).
 
 ## Use
