@@ -1,6 +1,6 @@
 # nmtp
 
-![nmtp logo](./logo.png "nmtp logo")
+![nmtp logo](./icon.png "nmtp logo")
 
 nmtp is a fork of [LibMtpSharp](https://github.com/shaosss/LibMtpSharp) and a wrapper of [libmtp](https://github.com/libmtp/libmtp) with a few [changes](https://github.com/endurabyte/libmtp).
 
